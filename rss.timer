@@ -1,0 +1,11 @@
+[Unit]
+Description=Rss timer
+
+[Timer]
+OnBootSec=10min
+OnActiveSec=10
+OnUnitActiveSec=1h
+Unit=rss.service
+
+[Install]
+WantedBy=default.target

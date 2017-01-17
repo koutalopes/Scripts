@@ -1,0 +1,6 @@
+[Unit]
+Description=RssService
+
+[Service]
+ExecStart=/usr/bin/python /home/kouta/Scripts/rss.py
+
