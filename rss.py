@@ -8,7 +8,6 @@ koutalopes
 """
 
 import feedparser
-import os
 import urllib.request
 
 def get_links():
@@ -16,7 +15,7 @@ def get_links():
     d = feedparser.parse(rss)
 
     a = [x for x in d["items"]]
-    
+
     return a
 
 def save_file():

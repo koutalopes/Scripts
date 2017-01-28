@@ -20,19 +20,24 @@ SCRIPT_DESC = "Now playing for deadbeef"
 def pbar(progress):
     barLength = 14 # Modify this to change the length of the progress bar
     status = ""
+
     if isinstance(progress, int):
         progress = float(progress)
+
     if not isinstance(progress, float):
         progress = 0
         status = "error: progress var must be float\r\n"
+
     block = int(round(barLength*(progress/100)))
     text = "[{0}]".format( "#"*block + "-"*(barLength-block))
+
     return text
 
 def obr(path):
     cmd = "mediainfo"
     args = "--Output=General;%OverallBitRate/String%"
     o = bytes.decode(subprocess.check_output([cmd, args, path]))
+
     if len(o.split()) == 3:
         if o.split()[2] == "Mbps":
            obr = "~" + o.split()[0] + o.split()[1] + " Mb/s"
@@ -43,18 +48,21 @@ def obr(path):
             obr = "~" + o.split()[0] + " Mb/s"
         else:
             obr = "~" + o.split()[0] + " Kb/s"
+
     return obr
 
 def fsize(path):
     cmd = "mediainfo"
     args = "--Output=General;%FileSize/String%"
     s = bytes.decode(subprocess.check_output([cmd, args, path]))
+
     if s.split()[1] == "GiB":
         size = s.split()[0] + " Gb"
     elif s.split()[1] == "MiB":
         size = s.split()[0] + " Mb"
     else:
         size = s
+
     return size
 
 def getinfos ():
@@ -84,7 +92,7 @@ def msg ():
 
     percent = int(round((float(timepossec) / float(durationsec)) * 100, -1))
 
-    msg = "DeaDBeeF {} [ {} - {} |{}| {}/{} | {} | {} | {} ] ".format(version, 
+    msg = "DeaDBeeF {} [ {} - {} |{}| {}/{} | {} | {} | {} ] ".format(version,
                                                                       artist,
                                                                       title,
                                                                       pbar(percent),
