@@ -1,4 +1,10 @@
 #!/usr/bin/python3
+#
+#	IRC bot on python
+#	Kouta_Kun
+#	29/01/17
+#	0.1
+#
 
 import socket
 import ssl
@@ -23,7 +29,6 @@ def joinchan(chan):
 	sirc.send(bytes("JOIN " + chan + "\n", "UTF-8"))
 	ircmsg = ""
 	while ircmsg.find("End of /NAMES list.") == -1:
-		print ("join def entrou while")
 		ircmsg = sirc.recv(2048).decode("UTF-8")
 		ircmsg = ircmsg.strip('\n\r')
 		print(ircmsg)
