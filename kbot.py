@@ -15,30 +15,27 @@ sirc = ssl.wrap_socket(ircsock)
 
 server = "irc.rizon.net"
 port = 9999 # Secure connection
-channel = "#testes"
+channel = "#flooders"
 botnick = "kBot"
 adminname = "Kouta_Kun"
-exitcode = "!quit " + botnick
+exitcode = "!quitbot"
+con = False
 
 def connect():
-	sirc.connect((server, port))
-	sirc.send(bytes("USER " + botnick + " " + botnick + " " + botnick + " Python Bot Test\n", "UTF-8"))
-	sirc.send(bytes("NICK " + botnick + "\n", "UTF-8"))
+	try:
+		sirc.connect((server, port))
+		sirc.send(bytes("USER " + botnick + " " + botnick + " " + botnick + " Python Bot Test\n", "UTF-8"))
+		sirc.send(bytes("NICK " + botnick + "\n", "UTF-8"))
+		con = True
+	except Exception:
+		con = False
 
-def joinchan(chan):
-	sirc.send(bytes("JOIN " + chan + "\n", "UTF-8"))
-	ircmsg = ""
-	while ircmsg.find("End of /NAMES list.") == -1:
-		ircmsg = sirc.recv(2048).decode("UTF-8")
-		ircmsg = ircmsg.strip('\n\r')
-		print(ircmsg)
-
-def pong(ping): # respond to server Pings.
+def pong(ping):
 	pingn = ping.split()[1]
 	sirc.send(bytes("PONG " + pingn + "\n", "UTF-8"))
 	print ("PONG " + pingn)
 
-def sendmsg(msg, target=channel): # sends messages to the target.
+def sendmsg(msg, target=channel):
 	sirc.send(bytes("PRIVMSG "+ target +" :"+ msg +"\n", "UTF-8"))
 
 def main():
@@ -48,7 +45,7 @@ def main():
 		print(ircmsg)
 
 		if ircmsg.find("End of /MOTD command.") != -1:
-			joinchan(channel)
+			sirc.send(bytes("JOIN " + channel + "\n", "UTF-8"))
 
 		if ircmsg.find("PRIVMSG") != -1:
 			nick = ircmsg.split('!',1)[0][1:]

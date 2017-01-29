@@ -3,7 +3,7 @@
 	# mpv "now playing" para o weechat
 	# Ricardo Lopes (Kouta_Kun)
 	#
-	# v0.4
+	# v0.5
 
 	# Adicionar ao mvp.conf a linha:
 	#   input-ipc-server=/tmp/mpvsocket
@@ -19,7 +19,7 @@ import weechat as w
 # Informações de registro do script
 SCRIPT_NAME	= "mpvnp"
 SCRIPT_AUTHOR 	= "Kouta_Kun"
-SCRIPT_VERSION	= "0.4"
+SCRIPT_VERSION	= "0.5"
 SCRIPT_LICENSE	= "Copyleft"
 SCRIPT_DESC	= "mpv Now playing"
 
@@ -49,7 +49,7 @@ def pbar(progress):
 def obr(path):
 	cmd = "mediainfo"
 	args = "--Output=General;%OverallBitRate/String%"
-	o = bytes.decode(subprocess.check_output([cmd, args, path]))
+	o = subprocess.check_output([cmd, args, path]).decode("UTF-8")
 
 	if len(o.split()) == 3:
 		if o.split()[2] == "Mbps":
@@ -67,7 +67,7 @@ def obr(path):
 def fsize(path):
 	cmd = "mediainfo"
 	args = "--Output=General;%FileSize/String%"
-	s = bytes.decode(subprocess.check_output([cmd, args, path]))
+	s = subprocess.check_output([cmd, args, path]).decode("UTF-8")
 
 	if s.split()[1] == "GiB":
 		size = s.split()[0] + " Gb"
@@ -76,7 +76,7 @@ def fsize(path):
 	else:
 		size = s
 
-return size
+	return size
 
 def getInfos():
 	sock.sendall(str.encode('{"command":["get_property","filename"]}\n'))
@@ -145,7 +145,8 @@ def mpv_np(world, world_eol, userdata):
 		sock.connect(MPVSOCK)
 		conn = True
 	except:
-	conn = False
+
+		conn = False
 
 	if conn == True:
 		w.command(w.current_buffer(), getInfos())

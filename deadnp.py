@@ -4,7 +4,7 @@
     # deadbeef "now playing" para o weechat
     # Ricardo Lopes (Kouta_Kun)
     #
-    # v0.1
+    # v0.2
 
 # Importar bibliotecas
 import subprocess
@@ -13,7 +13,7 @@ import weechat as w
 # Informações de registro do script
 SCRIPT_NAME     = "dbnp"
 SCRIPT_AUTHOR   = "Kouta_Kun"
-SCRIPT_VERSION  = "0.1"
+SCRIPT_VERSION  = "0.2"
 SCRIPT_LICENSE  = "Copyleft"
 SCRIPT_DESC = "Now playing for deadbeef"
 
@@ -36,7 +36,7 @@ def pbar(progress):
 def obr(path):
     cmd = "mediainfo"
     args = "--Output=General;%OverallBitRate/String%"
-    o = bytes.decode(subprocess.check_output([cmd, args, path]))
+    o = subprocess.check_output([cmd, args, path]).decode("UTF-8")
 
     if len(o.split()) == 3:
         if o.split()[2] == "Mbps":
@@ -54,7 +54,7 @@ def obr(path):
 def fsize(path):
     cmd = "mediainfo"
     args = "--Output=General;%FileSize/String%"
-    s = bytes.decode(subprocess.check_output([cmd, args, path]))
+    s = subprocess.check_output([cmd, args, path]).decode("UTF-8")
 
     if s.split()[1] == "GiB":
         size = s.split()[0] + " Gb"
