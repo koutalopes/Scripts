@@ -1,74 +1,51 @@
 #!/usr/bin/python3
 #
-#	IRC bot on python
+#	IRC bot on python using bottle + asyncio
 #	Kouta_Kun
-#	29/01/17
+#	11/02/2017
 #	0.1
 #
 
-import socket
-import ssl
-import datetime
-import time
+import bottom
+import asyncio
 
-sirc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#sirc = ssl.wrap_socket(ircsock)
+host = "irc.rizon.net"
+port = 9999 # Secure connection
+ssl = True
 
-server = "irc.rizon.net"
-port = 6667 # Secure connection
-channel = "#flooders"
-botnick = "kBot"
+CHANNEL = "#flooders"
+NICK = "Nozomu"
+PASS = "YAhsu4GWlHV7VlfG"
+
 adminname = "Kouta_Kun"
 exitcode = "!quitbot"
-con = False
 
-def connect():
-	try:
-		sirc.connect((server, port))
-		sirc.send(bytes("USER {} {} {} Python Bot Test\n".format(botnick, botnick, botnick), "UTF-8"))
-		sirc.send(bytes("NICK {}\n".format(botnick), "UTF-8"))
-		con = True
-	except Exception:
-		con = False
+bot = bottom.Client(host=host, port=port, ssl=ssl)
 
-def pong(ping):
-	pingn = ping.split()[1]
-	sirc.send(bytes("PONG {}\r\n".format(pingn), "UTF-8"))
-	print ("PONG {}".format(pingn))
+@bot.on('CLIENT_CONNECT')
+async def connect(**kwargs):
+	bot.send('NICK', nick=NICK)
+	bot.send('USER', user=NICK,
+					 realname='botton + asyncio irc bot')
+	bot.send('PASS', password=PASS)
 
-def sendmsg(msg, target=channel):
-	sirc.send(bytes("PRIVMSG {} :{}\n".format(target, msg), "UTF-8"))
+	# Não tentar entrar em nenhum canal até o fim do MOTD
+	done, pending = await asyncio.wait(
+		[bot.wait("RPL_ENDOFMOTD"),
+		 bot.wait("ERR_NOMOTD")],
+		loop=bot.loop,
+		return_when=asyncio.FIRST_COMPLETED
+	)
 
-def main():
-	while 1:
-		ircmsg = sirc.recv(2048).decode("UTF-8")
-		ircmsg = ircmsg.strip('\n\r')
-		st = str(datetime.datetime.now()).split('.')[0]
-		print ('[{}] {}'.format(st, ircmsg))
+	for future in pending:
+		future.cancel()
 
-		if ircmsg.find("End of /MOTD command.") != -1:
-			sirc.send(bytes("JOIN {}\n".format(channel), "UTF-8"))
+	bot.send('JOIN', channel=CHANNEL)
 
-		if ircmsg.find("PRIVMSG") != -1:
-			nick = ircmsg.split('!',1)[0][1:]
-			msg = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
-			alvo = ircmsg.split()[2]
+@bot.on('PING')
+def keepalive(message, **kwargs):
+	bot.send('PONG', message=message)
 
-			# admin commands
-			if nick.lower() == adminname.lower():
-				if msg.rstrip() == exitcode:
-					sendmsg("\o\~~~", alvo)
-					sirc.send(bytes("QUIT \n", "UTF-8"))
-					return
+bot.loop.create_task(bot.connect())
 
-				if msg.split()[0] == "!join":
-					sirc.send(bytes("JOIN {}\n".format(msg.split()[1]), "UTF-8"))
-					print("JOIN {}".format(msg.split()[1]))
-
-		else:
-			if ircmsg.find("PING :") != -1:
-				time.sleep(2)
-				pong(ircmsg)
-
-connect()
-main()
+bot.loop.run_forever()
