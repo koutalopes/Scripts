@@ -1,51 +1,78 @@
 #!/usr/bin/python3
 #
-#	IRC bot on python using bottle + asyncio
+#	IRC bot on python using
 #	Kouta_Kun
 #	11/02/2017
 #	0.1
 #
 
-import bottom
-import asyncio
+import socket
+import ssl
+import datetime
+import time
+import threading
 
+# Setup
+ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sirc = ssl.wrap_socket(ircsock)
+
+# Server
 host = "irc.rizon.net"
 port = 9999 # Secure connection
-ssl = True
 
-CHANNEL = "#flooders"
+# Bot identity
+CHANNEL = ["#flooders",
+		  ]
 NICK = "Nozomu"
 PASS = "YAhsu4GWlHV7VlfG"
 
-adminname = "Kouta_Kun"
+# Admin
+adminname = ["Kouta_Kun",
+			 "Rykrdo_Kun",
+			]
 exitcode = "!quitbot"
+con = False
 
-bot = bottom.Client(host=host, port=port, ssl=ssl)
+def connect():
+	try:
+		sirc.connect((host, port))
+		sirc.send(bytes("USER {} {} {} {}\r\n".format(NICK, NICK, NICK, NICK), "UTF-8"))
+		time.sleep(1)
+		sirc.send(bytes("NICK {} \r\n".format(NICK), "UTF-8"))
+		con = True
+	except Exception as exc:
+		print ("Erro {}".format(exc))
+		con = False
 
-@bot.on('CLIENT_CONNECT')
-async def connect(**kwargs):
-	bot.send('NICK', nick=NICK)
-	bot.send('USER', user=NICK,
-					 realname='botton + asyncio irc bot')
-	bot.send('PASS', password=PASS)
+def sendmsg(target, msg):
+	sirc.send(bytes("PRIVMSG {} :{}\r\n".format(target, msg), "UTF-8"))
 
-	# Não tentar entrar em nenhum canal até o fim do MOTD
-	done, pending = await asyncio.wait(
-		[bot.wait("RPL_ENDOFMOTD"),
-		 bot.wait("ERR_NOMOTD")],
-		loop=bot.loop,
-		return_when=asyncio.FIRST_COMPLETED
-	)
+def pingme():
+	threading.Timer(180.0, pingme).start()
+	sirc.send(bytes("PING {} \r\n".format("irc.rizon.net"), "UTF-8"))
+	print("[{}] - PING Server".format(datetime.datetime.now().strftime("%X")))
 
-	for future in pending:
-		future.cancel()
+def main():
 
-	bot.send('JOIN', channel=CHANNEL)
+	while 1:
+		ircmsg = sirc.recv(4096).decode("UTF-8")
+		ircmsg = ircmsg.strip('\r\n')
+		print("[{}] - {}".format(datetime.datetime.now().strftime("%X"), ircmsg))
 
-@bot.on('PING')
-def keepalive(message, **kwargs):
-	bot.send('PONG', message=message)
+		if ircmsg.find("PING") != -1:
+			sirc.send(bytes("PONG {} \r\n".format(ircmsg.split() [1]), "UTF-8"))
+			print("[{}] - PONG ".format(datetime.datetime.now().strftime("%X")))
 
-bot.loop.create_task(bot.connect())
+		if ircmsg.find("End of /MOTD command.") != -1:
+			for i in CHANNEL:
+				sirc.send(bytes("JOIN {} \r\n".format(i), "UTF-8"))
+				time.sleep(1)
+				sendmsg("nickserv", "IDENTIFY {} \r\n".format(PASS))
+				time.sleep(1)
+				try:
+					pingme()
+				except Exception as error:
+					print (error)
 
-bot.loop.run_forever()
+connect()
+main()
