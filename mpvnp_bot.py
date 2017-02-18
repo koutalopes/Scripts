@@ -11,38 +11,38 @@ def hdata(message):
 
 	return msg
 
-def pbar(progress):
-	barLength = 14 # Modify this to change the length of the progress bar
-	status = ""
-	if isinstance(progress, int):
-		progress = float(progress)
+# def pbar(progress):
+# 	barLength = 14 # Modify this to change the length of the progress bar
+# 	status = ""
+# 	if isinstance(progress, int):
+# 		progress = float(progress)
+#
+# 	if not isinstance(progress, float):
+# 		progress = 0
+# 		status = "error: progress var must be float\r\n"
+#
+# 	block = int(round(barLength*(progress/100)))
+# 	text = "[{0}]".format( "#"*block + "-"*(barLength-block))
+#
+# 	return text
 
-	if not isinstance(progress, float):
-		progress = 0
-		status = "error: progress var must be float\r\n"
-
-	block = int(round(barLength*(progress/100)))
-	text = "[{0}]".format( "#"*block + "-"*(barLength-block))
-
-	return text
-
-def obr(path):
-	cmd = "mediainfo"
-	args = "--Output=General;%OverallBitRate/String%"
-	o = subprocess.check_output([cmd, args, path]).decode("UTF-8")
-
-	if len(o.split()) == 3:
-		if o.split()[2] == "Mbps":
-			obr = "~" + o.split()[0] + o.split()[1] + " Mb/s"
-		else:
-			obr = "~" + o.split()[0] + o.split()[1] + " Kb/s"
-	elif len(o.split()) == 2:
-		if o.split()[1] == "Mbps":
-			obr = "~" + o.split()[0] + " Mb/s"
-		else:
-			obr = "~" + o.split()[0] + " Kb/s"
-
-	return obr
+# def obr(path):
+# 	cmd = "mediainfo"
+# 	args = "--Output=General;%OverallBitRate/String%"
+# 	o = subprocess.check_output([cmd, args, path]).decode("UTF-8")
+#
+# 	if len(o.split()) == 3:
+# 		if o.split()[2] == "Mbps":
+# 			obr = "~" + o.split()[0] + o.split()[1] + " Mb/s"
+# 		else:
+# 			obr = "~" + o.split()[0] + o.split()[1] + " Kb/s"
+# 	elif len(o.split()) == 2:
+# 		if o.split()[1] == "Mbps":
+# 			obr = "~" + o.split()[0] + " Mb/s"
+# 		else:
+# 			obr = "~" + o.split()[0] + " Kb/s"
+#
+# 	return obr
 
 def fsize(path):
 	cmd = "mediainfo"
