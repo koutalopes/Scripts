@@ -17,7 +17,7 @@ from apiclient.discovery import build
 # Setup
 ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sirc = ssl.wrap_socket(ircsock)
-DEV_KEY = 'AIzaSyBQ4_mRJbwOuWS_Wu3nVM9SqVXs2t36hAI'
+DEV_KEY = ''
 yt = build('youtube', 'v3', developerKey=DEV_KEY)
 
 # Server
@@ -29,7 +29,7 @@ CHANNEL = ["#flooders",
 		   "#testes",
 		  ]
 NICK = "Nozomu"
-PASS = "YAhsu4GWlHV7VlfG"
+PASS = ""
 
 # Admin
 adminname = ["Kouta_Kun",
