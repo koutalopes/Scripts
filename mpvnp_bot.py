@@ -5,26 +5,39 @@ import subprocess
 
 MPVSOCK = "/tmp/mpvsocket"
 
+def sConnect():
+	global sock
+	global conn
+	sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
+	try:
+		sock.connect(MPVSOCK)
+		conn = True
+	except:
+		conn = False
+
+sConnect()
+
 def hdata(message):
 	i = str(message)
 	msg = float(i.split(".")[0])
 
 	return msg
 
-# def pbar(progress):
-# 	barLength = 14 # Modify this to change the length of the progress bar
-# 	status = ""
-# 	if isinstance(progress, int):
-# 		progress = float(progress)
-#
-# 	if not isinstance(progress, float):
-# 		progress = 0
-# 		status = "error: progress var must be float\r\n"
-#
-# 	block = int(round(barLength*(progress/100)))
-# 	text = "[{0}]".format( "#"*block + "-"*(barLength-block))
-#
-# 	return text
+def pbar(progress):
+	barLength = 14 # Modify this to change the length of the progress bar
+	status = ""
+	if isinstance(progress, int):
+		progress = float(progress)
+
+	if not isinstance(progress, float):
+		progress = 0
+		status = "error: progress var must be float\r\n"
+
+	block = int(round(barLength*(progress/100)))
+	text = "[{0}]".format( "#"*block + "-"*(barLength-block))
+
+	return text
 
 # def obr(path):
 # 	cmd = "mediainfo"
@@ -44,19 +57,19 @@ def hdata(message):
 #
 # 	return obr
 
-def fsize(path):
-	cmd = "mediainfo"
-	args = "--Output=General;%FileSize/String%"
-	s = subprocess.check_output([cmd, args, path]).decode("UTF-8")
-
-	if s.split()[1] == "GiB":
-		size = s.split()[0] + " Gb"
-	elif s.split()[1] == "MiB":
-		size = s.split()[0] + " Mb"
-	else:
-		size = s
-
-	return size
+# def fsize(path):
+# 	cmd = "mediainfo"
+# 	args = "--Output=General;%FileSize/String%"
+# 	s = subprocess.check_output([cmd, args, path]).decode("UTF-8")
+#
+# 	if s.split()[1] == "GiB":
+# 		size = s.split()[0] + " Gb"
+# 	elif s.split()[1] == "MiB":
+# 		size = s.split()[0] + " Mb"
+# 	else:
+# 		size = s
+#
+# 	return size
 
 def getInfos():
 	sock.sendall(str.encode('{"command":["get_property","filename"]}\n'))
@@ -103,29 +116,17 @@ def getInfos():
 	data = json.loads(bytes.decode(sock.recv(1024)))
 	version = data["data"]
 
-	msg = '%s [ %s |%s| %s/%s | %s | %s | %sx%s | %s ]' % (version,
-														   filename,
-														   pbar(percent),
-														   datetime.timedelta(seconds=float(timepos)),
-														   datetime.timedelta(seconds=float(duration)),
-														   fsize(path),
-														   obr(path),
-														   resx,
-														   resy,
-														   vformat)
+	msg = "is playing {} ({}/{}) [{}] on mpv {}".format(filename,
+														datetime.timedelta(seconds=float(timepos)),
+														datetime.timedelta(seconds=float(duration)),
+														vcodec,
+														version)
+	print(msg)
 
-	print (msg)
+def showMsg():
+	if conn == True:
+		getInfos()
+	else:
+		print("Tem coisa errada ae noobão")
 
-global sock
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-
-try:
-	sock.connect(MPVSOCK)
-	conn = True
-except:
-	conn = False
-
-if conn == True:
-	getInfos()
-else:
-	print("Tem coisa errada ae noobão")
+showMsg()
