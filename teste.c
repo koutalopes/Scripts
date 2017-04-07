@@ -8,13 +8,13 @@ int main() {
 
     if (vSaque > 500) {
         printf("Valor acima.\n");
-    } else if ((vSaque % 10) != 0) {
+    } else if ((vSaque % 10) != 0 || ((vSaque < 40) && (vSaque % 20) != 0)) {
         printf("Valor inválido.\n");
     } else {
         if (((vSaque % 50) % 20) == 0) {
             nota50 = vSaque / 50;
             nota20 = (vSaque % 50) / 20;
-        } else {
+        } else if ((vSaque % 20) != 0) {
             nota50 = (vSaque / 50) - 1;
             nota20 = ((vSaque % 50) + 50) / 20;
         }
