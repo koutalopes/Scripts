@@ -19,7 +19,7 @@ int main() {
             nota20 = ((vSaque % 50) + 50) / 20;
         } else {
             nota50 = 0;
-            nota20 = vSaque / 50;
+            nota20 = vSaque / 20;
         }
         printf("Notas de 20: %d\n", nota20);
         printf("NOtas de 50: %d\n", nota50);
