@@ -3,7 +3,7 @@
 	# mpv "now playing" para o weechat
 	# Ricardo Lopes (Kouta_Kun)
 	#
-	# v0.5
+	# v0.5.1
 
 	# Adicionar ao mvp.conf a linha:
 	#   input-ipc-server=/tmp/mpvsocket
@@ -14,12 +14,16 @@ import socket
 import json
 import datetime
 import subprocess
+import sys
 import weechat as w
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 # Informações de registro do script
 SCRIPT_NAME	= "mpvnp"
 SCRIPT_AUTHOR 	= "Kouta_Kun"
-SCRIPT_VERSION	= "0.5"
+SCRIPT_VERSION	= "0.5.1"
 SCRIPT_LICENSE	= "Copyleft"
 SCRIPT_DESC	= "mpv Now playing"
 
@@ -46,37 +50,35 @@ def pbar(progress):
 
 	return text
 
-def obr(path):
-	cmd = "mediainfo"
-	args = "--Output=General;%OverallBitRate/String%"
-	o = subprocess.check_output([cmd, args, path]).decode("UTF-8")
+# def obr(path):
+# 	cmd = "mediainfo"
+# 	args = "--Output=General;%OverallBitRate/String%"
+# 	o = subprocess.check_output([cmd, args, path]).decode("UTF-8")
+#
+# 	if len(o.split()) == 3:
+# 		if o.split()[2] == "Mbps":
+# 			obr = "~" + o.split()[0] + o.split()[1] + " Mb/s"
+# 		else:
+# 			obr = "~" + o.split()[0] + o.split()[1] + " Kb/s"
+# 	elif len(o.split()) == 2:
+# 		if o.split()[1] == "Mbps":
+# 			obr = "~" + o.split()[0] + " Mb/s"
+# 		else:
+# 			obr = "~" + o.split()[0] + " Kb/s"
+#
+# 	return obr
 
-	if len(o.split()) == 3:
-		if o.split()[2] == "Mbps":
-			obr = "~" + o.split()[0] + o.split()[1] + " Mb/s"
-		else:
-			obr = "~" + o.split()[0] + o.split()[1] + " Kb/s"
-	elif len(o.split()) == 2:
-		if o.split()[1] == "Mbps":
-			obr = "~" + o.split()[0] + " Mb/s"
-		else:
-			obr = "~" + o.split()[0] + " Kb/s"
-
-	return obr
-
-def fsize(path):
-	cmd = "mediainfo"
-	args = "--Output=General;%FileSize/String%"
-	s = subprocess.check_output([cmd, args, path]).decode("UTF-8")
-
-	if s.split()[1] == "GiB":
-		size = s.split()[0] + " Gb"
-	elif s.split()[1] == "MiB":
-		size = s.split()[0] + " Mb"
+def fsize(size):
+	if (len(str(size))) == 10:
+		s = (float(size) / 1073741824)
+		s = round(s, 2)
+		sd = str(s) + " Gb"
 	else:
-		size = s
+		s = (float(size) / 1048576)
+		s = round(s, 2)
+		sd = str(s) + " Mb"
 
-	return size
+	return sd
 
 def getInfos():
 	sock.sendall(str.encode('{"command":["get_property","filename"]}\n'))
@@ -115,24 +117,23 @@ def getInfos():
 	data = json.loads(bytes.decode(sock.recv(1024)))
 	resy = data["data"]
 
-	sock.sendall(str.encode('{"command":["get_property","path"]}\n'))
+	sock.sendall(str.encode('{"command":["get_property","file-size"]}\n'))
 	data = json.loads(bytes.decode(sock.recv(1024)))
-	path = data["data"]
+	size = data["data"]
 
 	sock.sendall(str.encode('{"command":["get_property","mpv-version"]}\n'))
 	data = json.loads(bytes.decode(sock.recv(1024)))
 	version = data["data"]
 
-	msg = '%s [ %s |%s| %s/%s | %s | %s | %sx%s | %s ]' % (version,
-														   filename,
-														   pbar(percent),
-														   datetime.timedelta(seconds=float(timepos)),
-														   datetime.timedelta(seconds=float(duration)),
-														   fsize(path),
-														   obr(path),
-														   resx,
-														   resy,
-														   vformat)
+	msg = "{} [ {} |{}| {}/{} | {} | {}x{} | {} ]".format(version,
+														  filename,
+														  pbar(percent),
+														  datetime.timedelta(seconds=float(timepos)),
+														  datetime.timedelta(seconds=float(duration)),
+														  fsize(size),
+														  resx,
+														  resy,
+														  vformat)
 
 	return msg
 
