@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 
-	# mpv "now playing" para o weechat
-	# Ricardo Lopes (Kouta_Kun)
-	#
-	# v0.5.1
+    # mpv "now playing" para o weechat
+    # Ricardo Lopes (Kouta_Kun)
+    #
+    # v0.5.1
 
-	# Adicionar ao mvp.conf a linha:
-	#   input-ipc-server=/tmp/mpvsocket
-	#
+    # Adicionar ao mvp.conf a linha:
+    #   input-ipc-server=/tmp/mpvsocket
+    #
 
 # Importar bibliotecas
 import socket
 import json
 import datetime
-import subprocess
 import sys
 import weechat as w
 
@@ -35,117 +34,116 @@ def hdata(message):
 
     return msg
 
-def pbar(progress):
-	barLength = 14 # Modify this to change the length of the progress bar
-	status = ""
-	if isinstance(progress, int):
-		progress = float(progress)
+#def pbar(percent):
+#    barLength = 14 # Modify this to change the length of the progress bar
+#    status = ""
+#    if isinstance(percent, int):
+#        percent = float(percent)
+#
+#    if not isinstance(percent, float):
+#        percent = 0
+#       status = "error: progress var must be float\r\n"
+#
+#        block = int(round(barLength*(percent/100)))
+#        text = "[{0}]".format("#"*block + "-"*(barLength-block))
+#
+#        return text
 
-	if not isinstance(progress, float):
-		progress = 0
-		status = "error: progress var must be float\r\n"
-
-	block = int(round(barLength*(progress/100)))
-	text = "[{0}]".format("#"*block + "-"*(barLength-block))
-
-	return text
-
-def fsize(size):
-	if (len(str(size))) == 10:
-		s = (float(size) / 1073741824)
-		s = round(s, 2)
-		sd = str(s) + " Gb"
-	else:
-		s = (float(size) / 1048576)
-		s = round(s, 2)
-		sd = str(s) + " Mb"
-
-	return sd
+#def fsize(size):
+#    if (len(str(size))) == 11:
+#        s = (float(size) / 1073741824)
+#        s = round(s, 2)
+#        sd = str(s) + " Gb"
+#    else:
+#        s = (float(size) / 1048576)
+#        s = round(s, 2)
+#        sd = str(s) + " Mb"
+#
+#        return sd
 
 def getInfos():
-	sock.sendall(str.encode('{"command":["get_property","filename"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	filename = data["data"]
+    sock.sendall(str.encode('{"command":["get_property","filename"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    filename = data["data"]
 
-	sock.sendall(str.encode('{"command":["get_property","percent-pos"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	percent = hdata(data["data"])
+    sock.sendall(str.encode('{"command":["get_property","percent-pos"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    percent = hdata(data["data"])
 
-	sock.sendall(str.encode('{"command":["get_property","time-pos"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	timepos = hdata(data["data"])
+    sock.sendall(str.encode('{"command":["get_property","time-pos"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    timepos = hdata(data["data"])
 
-	sock.sendall(str.encode('{"command":["get_property","duration"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	duration = hdata(data["data"])
+    sock.sendall(str.encode('{"command":["get_property","duration"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    duration = hdata(data["data"])
 
-	sock.sendall(str.encode('{"command":["get_property","video-format"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	vformat = data["data"]
+    sock.sendall(str.encode('{"command":["get_property","video-format"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    vformat = data["data"]
 
-	sock.sendall(str.encode('{"command":["get_property","video-codec"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	vcodec = data["data"]
+    sock.sendall(str.encode('{"command":["get_property","video-codec"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    vcodec = data["data"]
 
-	sock.sendall(str.encode('{"command":["get_property","file-format"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	fformat = data["data"]
+    sock.sendall(str.encode('{"command":["get_property","file-format"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    fformat = data["data"]
 
-	sock.sendall(str.encode('{"command":["get_property","width"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	resx = data["data"]
+    sock.sendall(str.encode('{"command":["get_property","width"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    resx = data["data"]
 
-	sock.sendall(str.encode('{"command":["get_property","height"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	resy = data["data"]
+    sock.sendall(str.encode('{"command":["get_property","height"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    resy = data["data"]
 
-	sock.sendall(str.encode('{"command":["get_property","file-size"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	size = data["data"]
+    sock.sendall(str.encode('{"command":["get_property","file-size"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    size = data["data"]
 
-	sock.sendall(str.encode('{"command":["get_property","mpv-version"]}\n'))
-	data = json.loads(bytes.decode(sock.recv(1024)))
-	version = data["data"]
+    sock.sendall(str.encode('{"command":["get_property","mpv-version"]}\n'))
+    data = json.loads(bytes.decode(sock.recv(1024)))
+    version = data["data"]
 
-	msg = "{} [ {} |{}| {}/{} | {} | {}x{} | {} ]".format(version,
-														  filename,
-														  pbar(percent),
-														  datetime.timedelta(seconds=float(timepos)),
-														  datetime.timedelta(seconds=float(duration)),
-														  fsize(size),
-														  resx,
-														  resy,
-														  vformat)
+    msg = "{} [ {} | {}/{} | {}x{} | {} ]".format(version,
+                                                  filename,
+    #                                             pbar(percent),
+                                                  datetime.timedelta(seconds=float(timepos)),
+                                                  datetime.timedelta(seconds=float(duration)),
+    #                                             fsize(size),
+                                                  resx,
+                                                  resy,
+                                                  vformat)
 
-	return msg
+    return msg
 
 # mostrar informação
 def mpv_np(world, world_eol, userdata):
-	global sock
-	sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    global sock
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
-	try:
-		sock.connect(MPVSOCK)
-		conn = True
-	except:
+    try:
+        sock.connect(MPVSOCK)
+        conn = True
+    except:
+        conn = False
 
-		conn = False
+    if conn == True:
+        w.command(w.current_buffer(), getInfos())
+        sock.close()
+    else:
+        w.prnt(w.current_buffer(), "mpv não está sendo executado!")
 
-	if conn == True:
-		w.command(w.current_buffer(), getInfos())
-		sock.close()
-	else:
-		w.prnt(w.current_buffer(), "mpv não está sendo executado!")
-
-	return w.WEECHAT_RC_OK
+    return w.WEECHAT_RC_OK
 
 # Registro do Script
 w.register(SCRIPT_NAME,
-		   SCRIPT_AUTHOR,
-		   SCRIPT_VERSION,
-		   SCRIPT_LICENSE,
-		   SCRIPT_DESC,
-		   ' ', ' ')
+           SCRIPT_AUTHOR,
+           SCRIPT_VERSION,
+           SCRIPT_LICENSE,
+           SCRIPT_DESC,
+           ' ', ' ')
 
 # Comando
 w.hook_command("mpv", "Now Playing", "", "/mpv", "", "mpv_np", "")
