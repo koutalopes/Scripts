@@ -1,5 +1,0 @@
-[Unit]
-Description=Wallpaper changer service
-
-[Service]
-ExecStart=/bin/bash 'caminho para o script .sh'
